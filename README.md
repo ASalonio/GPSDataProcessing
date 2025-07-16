@@ -41,3 +41,7 @@ These scripts are intended as a portfolio piece to highlight data science and ge
    ```bash
    git clone <repository-url>
    cd GPSDataProcessing
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
