@@ -13,10 +13,10 @@ These scripts are intended as a portfolio piece to highlight data science and ge
 
 ## Scripts
 
-- `Limpieza_I.R`: Initial data cleaning and filtering of GPS observations.
-- `Limpieza_II.R`: Calculation of grazing seasons and pasture days with spatial integration.
-- `Limpieza_III.R`: Incorporation of landscape variables (e.g., altitude, slope) into GPS data.
-- `EDA.R`: Exploratory data analysis with visualizations (e.g., bar plots, boxplots, heatmaps).
+- `clean_I.R`: Initial data cleaning and filtering of GPS observations.
+- `clean_II.R`: Calculation of grazing seasons and pasture days with spatial integration.
+- `clean_III.R`: Incorporation of landscape variables (e.g., altitude, slope) into GPS data.
+- `eda.R`: Exploratory data analysis with visualizations (e.g., bar plots, boxplots, heatmaps).
 
 ## Requirements
 
