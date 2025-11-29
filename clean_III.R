@@ -11,8 +11,10 @@ library(tidyterra)
 library(stringr)
 
 # Import data (placeholder for processed data)
-data_path <- "path/to/data/output"  # Generic path to output directory
-input_data <- read_csv2(file.path(data_path, "processed_data.csv"))  # Placeholder for input data
+raw_data_path <- Sys.getenv("RAW_DATA_PATH", "data")
+processed_data_path <- Sys.getenv("PROCESSED_DATA_PATH", "data/output")
+input_data <- read_csv2(file.path(processed_data_path, "processed_data.csv"))  # Placeholder for input data
+output_path <- Sys.getenv("OUTPUT_PATH", "output")
 
 # Select relevant columns and add temporal variables
 clean_data <- input_data %>% select(ID, user_id, device_id, origin, livestock_type, management_unit, timestamp, x, y) %>%
@@ -35,8 +37,7 @@ clean_data <- input_data %>% select(ID, user_id, device_id, origin, livestock_ty
     Month == "December" ~ "Winter"))
 
 # Import Traceability (placeholder)
-trace_path <- "path/to/data/input"  # Generic path to input directory
-trace_data <- read_csv2(file.path(trace_path, "traceability_data.csv"))
+trace_data <- read_csv2(file.path(raw_data_path, "traceability_data.csv"))
 
 # Rename Device ID
 name1 <- "device_id"
@@ -50,12 +51,10 @@ data_with_trace <- clean_data %>% left_join(trace)
 data_vector <- terra::vect(data_with_trace, geom = c("x", "y"), crs = "EPSG:25830")
 
 # Import Slope Data
-slope_path <- "path/to/data/landscape/slope"
-slope_data <- terra::vect(file.path(slope_path, "slope_data.shp"))
+slope_data <- terra::vect(file.path(raw_data_path, "slope_data.shp"))
 
 # Import Orientation Data
-orient_path <- "path/to/data/landscape/orientation"
-orient_data <- terra::vect(file.path(orient_path, "orientation_data.shp"))
+orient_data <- terra::vect(file.path(raw_data_path, "orientation_data.shp"))
 
 # Reproject Slope
 slope_data <- project(slope_data, "EPSG:25830")
@@ -78,8 +77,7 @@ slope_df_clean <- slope_df %>% select(ID, slope_value) %>% distinct(.keep_all = 
 orient_df_clean <- orient_df %>% select(ID, orientation_value) %>% distinct(.keep_all = TRUE)
 
 # Import DEM Data
-dem_path <- "path/to/data/landscape/dem"
-dem_data <- terra::rast(file.path(dem_path, "dem_data.tif"))
+dem_data <- terra::rast(file.path(raw_data_path, "dem_data.tif"))
 
 # Extract Altitude
 altitude_extract <- terra::extract(dem_data, data_vector)
@@ -93,8 +91,7 @@ remove(altitude_extract)
 altitude_df_clean <- terra::as.data.frame(altitude_df) %>% select(ID, Altitude) %>% distinct(.keep_all = TRUE)
 
 # Import Habitat Data (placeholder)
-habitat_path <- "path/to/data/landscape/habitat"
-habitat_data <- terra::vect(file.path(habitat_path, "habitat_data.shp"))
+habitat_data <- terra::vect(file.path(raw_data_path, "habitat_data.shp"))
 
 # Intersect with Habitat
 habitat_intersect <- terra::intersect(data_vector, habitat_data)
@@ -103,8 +100,7 @@ habitat_intersect <- terra::intersect(data_vector, habitat_data)
 habitat_df_clean <- terra::as.data.frame(habitat_intersect) %>% select(ID, habitat_type1, habitat_type1_desc, habitat_type2, habitat_type2_desc, cover_type1, cover_type2) %>% distinct(.keep_all = TRUE)
 
 # Import Forest Inventory Data (placeholder)
-forest_path <- "path/to/data/landscape/forest"
-forest_data <- terra::vect(file.path(forest_path, "forest_inventory.shp"))
+forest_data <- terra::vect(file.path(raw_data_path, "forest_inventory.shp"))
 
 # Intersect with Forest Inventory
 forest_intersect <- terra::intersect(data_vector, forest_data)
@@ -113,8 +109,7 @@ forest_intersect <- terra::intersect(data_vector, forest_data)
 forest_df_clean <- terra::as.data.frame(forest_intersect) %>% select(ID, forest_cover1, forest_cover2, forest_cover3, species_type, species_type_desc, species1_desc, species2_desc) %>% distinct(.keep_all = TRUE)
 
 # Import Water Points Data (placeholder)
-water_path <- "path/to/data/landscape/water"
-water_data <- terra::vect(file.path(water_path, "water_points.shp"), crs = "EPSG:25830")
+water_data <- terra::vect(file.path(raw_data_path, "water_points.shp"), crs = "EPSG:25830")
 
 # Rename Fields
 name5 <- "Water"
@@ -130,8 +125,7 @@ water_intersect <- terra::intersect(data_vector, water_renamed)
 water_df_clean <- terra::as.data.frame(water_intersect) %>% select(ID, Water, Water_Obs, Water_LIFE) %>% distinct(ID, Water, Water_Obs, Water_LIFE, .keep_all = TRUE)
 
 # Import Paths Data
-path_path <- "path/to/data/landscape/paths"
-path_data <- terra::vect(file.path(path_path, "path_data.shp"), crs = "EPSG:25830")
+path_data <- terra::vect(file.path(raw_data_path, "path_data.shp"), crs = "EPSG:25830")
 
 # Rename Fields
 name7 <- "Paths"
@@ -147,9 +141,8 @@ path_intersect <- terra::intersect(data_vector, buffered_paths)
 # Convert to Data Frame and Remove Duplicates
 path_df_clean <- terra::as.data.frame(path_intersect) %>% select(ID, Path_ID, Paths) %>% distinct(ID, .keep_all = TRUE)
 
-# Import Clearance Data
-clearance_path <- "path/to/data/landscape/clearance"
-clearance_data <- terra::vect(file.path(clearance_path, "clearance_data.shp"), crs = "EPSG:25830")
+# Import Shrub clearance Data
+clearance_data <- terra::vect(file.path(raw_data_path, "clearance_data.shp"), crs = "EPSG:25830")
 
 # Assign Unique IDs
 clearance_data$ID_clear <- seq.int(nrow(clearance_data))
@@ -196,4 +189,4 @@ final_landscape <- clean_data %>%
 final_landscape_vector <- terra::vect(final_landscape, geom = c("x", "y"), crs = "EPSG:25830")
 
 # Export (generic output path)
-readr::write_csv2(final_landscape, "path/to/output/landscape_data.csv")
+readr::write_csv2(final_landscape, file.path(output_path, "landscape_data.csv"))

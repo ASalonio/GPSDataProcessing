@@ -1,0 +1,133 @@
+name: process livestock GPS data
+on:
+  push:
+    paths:
+      -'data/**'
+  workflow_dispatch:
+
+jobs: 
+  process-data:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Install sys dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libgdal-dev \
+          libproj-dev \
+          libudunits2-dev \
+          libssl-dev \
+          libcurl4-openssl-dev \
+          libxml2-dev \
+          libfontconfig1-dev \
+          libharfbuzz-dev \
+          libfribidi-dev \
+          libfreetype6-dev \
+          libpng-dev \
+          libtiff5-dev \
+          libjpeg-dev \
+          libgeos-dev
+
+    - name: Set up R
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: "4.3"
+
+    - name: Install R packages
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        extra-packages: |
+          sp
+          terra
+          sf
+          tidyterra
+          tidyverse
+          openxlsx
+          readr
+          lubridate
+          scales
+          ggplot2
+          scales
+        cache-version: 1
+        needs-restart: true
+    
+    - name: Create directories
+      run: |
+        mkdir -p output
+        mkdir -p data/output
+        mkdir -p data/landscape/slope
+        mkdir -p data/landscape/orientation
+        mkdir -p data/landscape/dem
+        mkdir -p data/landscape/habitat
+        mkdir -p data/landscape/forest
+        mkdir -p data/landscape/water
+        mkdir -p data/landscape/paths
+        mkdir -p data/landscape/clearance
+
+    - name: Run clean_I - Spatial Data Cleaning
+      run: |
+        Rscript clean_I.R
+      env:
+        RAW_DATA_PATH: ${{ github.workspace }}/data
+        PROCESSED_DATA_PATH: ${{ github.workspace }}/data/output
+        OUTPUT_PATH: ${{ github.workspace }}/output
+
+    - name: Run clean_II - Grazing Demand Analysis
+      run: |
+        Rscript clean_II.R
+      env:
+        PROCESSED_DATA_PATH: ${{ github.workspace }}/data/output
+        OUTPUT_PATH: ${{ github.workspace }}/output
+
+    - name: Run clean_III - Landscape Analysis
+      run: |
+        Rscript clean_III.R
+      env:
+        RAW_DATA_PATH: ${{ github.workspace }}/data
+        PROCESSED_DATA_PATH: ${{ github.workspace }}/data/output
+        OUTPUT_PATH: ${{ github.workspace }}/output
+
+    - name: Run EDA - Exploratory Data Analysis
+      run: |
+       Rscript eda.R
+      env:
+        PROCESSED_DATA_PATH: ${{ github.workspace }}/data
+        OUTPUT_PATH: ${{ github.workspace }}/output
+
+    - name: Upload outputs as artifacts
+      uses: actions/upload-artifacts@v4
+      with:
+        name: processed-data-outputs
+        path: |
+          output/*.csv
+          output/*.xlsx
+          output/*.png
+          data/output/*.csv
+          data/output/*.xlsx
+          data/output/*.png
+        retention-days: 30
+
+    - name: Commit and push outputs
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+        # Add all output files
+        git add output/* data/output/*
+
+        # Commit if there are changes
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Automated data processing: ${{ github.sha }} [skip ci]"
+        
+        # Push with force to overwrite any existing outputs
+        git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    

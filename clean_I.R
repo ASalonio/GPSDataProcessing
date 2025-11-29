@@ -11,22 +11,29 @@ library(sf)
 library(tidyverse)
 library(openxlsx)
 
+# Clear paths
+raw_data_path <- Sys.getenv("RAW_DATA_PATH", "data")
+processed_path <- Sys.getenv("PROCESSED_DATA_PATH", "data/output")
+output_path <- Sys.getenv("OUTPUT_PATH", "output")
+
+# Create processed data directory
+dir.create(processed_path, showWarnings = FALSE, recursive = TRUE)
+
 # Import data (placeholders for raw data files)
-data_path <- "path/to/data"  # Generic path to data directory
-zone1_raw <- read_csv(file.path(data_path, "zone1_data.csv"), col_types = "cddddddddddTccddcdd")  # Placeholder for zone 1 data
-zone2_raw <- read_csv(file.path(data_path, "zone2_data.csv"), col_types = "cddddddddddTccddcdd")  # Placeholder for zone 2 data
-lost_data <- read_csv(file.path(data_path, "lost_data.csv"), col_types = "cddddddddddTccddcdd")  # Placeholder for lost data
+zone1_raw <- read_csv(file.path(raw_data_path, "zone1_data.csv"), col_types = "cddddddddddTccddcdd")  # Placeholder for zone 1 data
+zone2_raw <- read_csv(file.path(raw_data_path, "zone2_data.csv"), col_types = "cddddddddddTccddcdd")  # Placeholder for zone 2 data
+lost_data <- read_csv(file.path(raw_data_path, "lost_data.csv"), col_types = "cddddddddddTccddcdd")  # Placeholder for lost data
 
 # Combine zone 2 with lost data
 total_zone2 <- bind_rows(zone2_raw, lost_data)
 
 # Import generic boundaries (placeholders)
-country_bound <- terra::vect(file.path(data_path, "country_boundaries.shp"), crs = "EPSG:25830")
-zec_bound <- terra::vect(file.path(data_path, "zec_boundaries.shp"), crs = "EPSG:25830")
-ug_bound <- terra::vect(file.path(data_path, "management_units.shp"), crs = "EPSG:25830")
+country_bound <- terra::vect(file.path(raw_data_path, "country_boundaries.shp"), crs = "EPSG:25830")
+zec_bound <- terra::vect(file.path(raw_data_path, "zec_boundaries.shp"), crs = "EPSG:25830")
+ug_bound <- terra::vect(file.path(raw_data_path, "management_units.shp"), crs = "EPSG:25830")
 
 # Import generic traceability data
-traceability <- read_csv2(file.path(data_path, "traceability_data.csv"))
+traceability <- read_csv2(file.path(raw_data_path, "traceability_data.csv"))
 
 # Rename GPS traceability (generic column name)
 name1 <- "device_id"
@@ -143,7 +150,7 @@ ref_ug_1 <- resume_ug %>% select(device_id, Livestock, ZEC, UG_1, perc_UG_1) %>%
   group_by(Livestock) %>% arrange(desc(perc_UG_1)) %>% slice_max(order_by = perc_UG_1) %>% filter(!perc_UG_1 == 0)
 
 # Save (generic output paths)
-write_csv2(filtered_data, "path/to/output/filtered_data.csv")
-write_csv2(ug_data_filtered, "path/to/output/ug_filtered_data.csv")
-write_csv2(agrupe, "path/to/output/lead_zec.csv")
-write_csv2(resume_ug, "path/to/output/lead_ug.csv")
+write_csv2(filtered_data, file.path(processed_path), "processed_data.csv")
+write_csv2(ug_data_filtered, file.path(processed_path), "ug_processed_data.csv")
+write_csv2(agrupe, file.path(processed_path), "lead_zec.csv")
+write_csv2(resume_ug, file.path(processed_path), "lead_ug.csv")

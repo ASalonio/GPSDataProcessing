@@ -7,8 +7,9 @@ library(sf)
 library(tidyverse)
 
 # Import Cleaned Data
-data_path <- "path/to/data/output"
-input_data <- read_csv2(file.path(data_path, "processed_data.csv"))  # Placeholder for input data
+processed_data_path <- Sys.getenv("PROCESSED_DATA_PATH", "data/output")
+input_data <- read_csv2(file.path(processed_data_path, "processed_data.csv"))  # Placeholder for input data
+output_path <- Sys.getenv("OUTPUT_PATH", "output")
 
 ## Total Observations by Livestock Type ##
 bar_data <- input_data %>%
@@ -42,7 +43,7 @@ plot(p_bar)
 
 # Save the Plot
 ggsave(
-  filename = "path/to/output/gps_obs_by_livestock_type.png",
+  filename = file.path(output_path, "gps_obs_by_livestock_type.png"),
   plot = p_bar,
   width = 8,
   height = 6,
@@ -52,8 +53,8 @@ ggsave(
 ## ZEC Proportion of Observations by Livestock Type ##
 pie_data <- input_data %>%
   mutate(
-    zec_status = as.factor(zec_status),
-    zec_status = if_else(zec_status == "1", "Inside", "Outside"),
+    zec_status = as.factor(ZEC),
+    zec_status = if_else(ZEC == "1", "Inside", "Outside"),
     livestock_type = case_when(
       livestock_type == "caprino" ~ "Caprine",
       livestock_type == "equino" ~ "Equine",
@@ -95,7 +96,7 @@ plot(p_pie)
 
 # Save the Plot
 ggsave(
-  filename = "path/to/output/zec_proportion.png",
+  filename = file.path(output_path, "zec_proportion.png"),
   plot = p_pie,
   width = 8,
   height = 6,
@@ -103,13 +104,13 @@ ggsave(
 )
 
 # Import Management Units Grazing Seasons (Placeholder)
-season_data <- read_csv2(file.path(data_path, "season_data.csv"))
+season_unit <- read_csv2(file.path(output_path, "season_unit.csv"))
 
 # Import Management Units Monthly Grazing Days (Placeholder)
-monthly_grazing_data <- read_csv2(file.path(data_path, "monthly_grazing_data.csv"))
+monthly_grazing_unit <- read_csv2(file.path(output_path, "pasture_days_month_unit.csv"))
 
 ## Total Grazing Days by Management Unit ##
-total_graz <- ggplot(season_data, aes(x = reorder(management_unit, total_grazing_days), y = total_grazing_days)) +
+total_graz <- ggplot(season_unit, aes(x = reorder(management_unit, Total_Pasture_Days), y = Total_Pasture_Days)) +
   geom_bar(stat = "identity", fill = "forestgreen") +
   coord_flip() +
   labs(
@@ -130,7 +131,7 @@ plot(total_graz)
 
 # Save the Plot
 ggsave(
-  filename = "path/to/output/total_grazing_days_by_ug.png",
+  filename = file.path(output_path, "total_grazing_days_by_ug.png"),
   plot = total_graz,
   width = 8,
   height = 6,
@@ -138,7 +139,7 @@ ggsave(
 )
 
 ## Monthly ZEC Grazed Days by Livestock Type and Management Unit ##
-monthly_grazing_data <- monthly_grazing_data %>%
+monthly_grazing_unit <- monthly_grazing_unit %>%
   mutate(livestock_type = case_when(
     livestock_type == "caprino" ~ "Caprine",
     livestock_type == "equino" ~ "Equine",
@@ -148,7 +149,7 @@ monthly_grazing_data <- monthly_grazing_data %>%
   )) %>%
   filter(livestock_type != "No_ID")
 
-monthly_graz <- ggplot(monthly_grazing_data, aes(x = month, y = grazing_days)) +
+monthly_graz <- ggplot(monthly_grazing_unit, aes(x = Month, y = Pasture_Days_Month)) +
   geom_point(aes(color = livestock_type), size = 1) +
   geom_smooth(se = FALSE, aes(color = livestock_type)) +
   facet_wrap(~ management_unit) +
@@ -184,7 +185,7 @@ plot(monthly_graz)
 
 # Save the Plot
 ggsave(
-  filename = "path/to/output/monthly_grazing_days_by_ug.png",
+  filename = file.path(output_path, "monthly_grazing_days_by_ug.png"),
   plot = monthly_graz,
   width = 8,
   height = 6,
@@ -192,7 +193,7 @@ ggsave(
 )
 
 # Import Landscape Data (Placeholder)
-landscape_data <- read_csv2(file.path(data_path, "landscape_data.csv"))
+landscape_data <- read_csv2(file.path(output_path, "landscape_data.csv"))
 
 # Keep Observations in Specific Land Covers
 filtered_data <- landscape_data %>%
@@ -210,39 +211,10 @@ filtered_data <- landscape_data %>%
       livestock_type == "vacuno" ~ "Bovine"
     ),
     season = factor(season, levels = c("Winter", "Spring", "Summer", "Fall")),
-    slope_category = factor(slope_category, labels = c("<30%", "30-50%", ">50%"))
+    slope_category = factor(slope_category, levels = c("<30%", "30-50%", ">50%"))
   ) %>%
   filter(!is.na(livestock_type)) %>%
   filter(livestock_type != "No_ID")
-
-## ZEC Spatial Distribution of GPS Observations ##
-# Note: Spatial data visualization requires placeholder geometry; actual plotting needs sanitized shapefiles
-p_zec <- ggplot() +
-  geom_point(data = filtered_data, aes(color = livestock_type), size = 0.5) +
-  labs(
-    title = "GPS Observations by Livestock Type",
-    fill = "Livestock"
-  ) +
-  scale_color_manual(
-    values = c("Bovine" = "#1f77b4", "Ovine" = "#ff7f0e", "Caprine" = "#2ca02c", "Equine" = "red")
-  ) +
-  theme_minimal(base_family = "sans") +
-  theme(
-    plot.background = element_rect(fill = "white", color = NA),
-    panel.background = element_rect(fill = "white", color = NA)
-  )
-
-# Display
-plot(p_zec)
-
-# Save
-ggsave(
-  filename = "path/to/output/zec_spatial_distribution.png",
-  plot = p_zec,
-  width = 8,
-  height = 6,
-  dpi = 300
-)
 
 ## Altitude Distribution by Livestock Type and Season ##
 filtered_data_clean <- filtered_data %>% filter(!is.na(altitude) & is.finite(altitude))
@@ -282,7 +254,7 @@ plot(p_altitude)
 
 # Save
 ggsave(
-  filename = "path/to/output/altitude_distribution_by_season.png",
+  filename = file.path(output_path, "altitude_distribution_by_season.png"),
   plot = p_altitude,
   width = 8,
   height = 6,
@@ -316,7 +288,7 @@ plot(p_slope)
 
 # Save
 ggsave(
-  filename = "path/to/output/slope_distribution_by_season.png",
+  filename = file.path(output_path, "slope_distribution_by_season.png"),
   plot = p_slope,
   width = 8,
   height = 6,
@@ -355,7 +327,7 @@ plot(p_land_cover)
 
 # Save
 ggsave(
-  filename = "path/to/output/land_cover_distribution_by_livestock.png",
+  filename = file.path(output_path, "land_cover_distribution_by_livestock.png"),
   plot = p_land_cover,
   width = 8,
   height = 6,
@@ -386,7 +358,7 @@ ggplot(heatmap_data, aes(x = season, y = livestock_type, fill = n)) +
 
 # Save
 ggsave(
-  filename = "path/to/output/grazing_intensity_heatmap.png",
+  filename = file.path(output_path, "grazing_intensity_heatmap.png"),
   width = 8,
   height = 6,
   dpi = 300
@@ -420,7 +392,7 @@ ggplot(clear_data, aes(x = Year, y = n, fill = livestock_type)) +
 
 # Save
 ggsave(
-  filename = "path/to/output/clearings.png",
+  filename = file.path(output_path, "clearings.png"),
   width = 10,
   height = 8,
   dpi = 300

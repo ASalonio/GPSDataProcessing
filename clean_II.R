@@ -16,8 +16,10 @@ library(openxlsx)
 library(lubridate)
 
 # Import data (placeholders for processed data files)
-data_path <- "path/to/data/output"  # Generic path to output directory
-input_data <- read_csv2(file.path(data_path, "processed_data.csv"))  # Placeholder for input data
+raw_data_path <- Sys.getenv("RAW_DATA_PATH", "data")
+processed_data_path <- Sys.getenv("PROCESSED_DATA_PATH", "data/output")
+input_data <- read_csv2(file.path(processed_data_path, "processed_data.csv"))  # Placeholder for input data
+output_path <- Sys.getenv("OUTPUT_PATH", "output")
 
 # Select relevant columns and filter ZEC observations
 clean_data <- input_data %>% filter(!ZEC == 0) %>% select(user_id, device_id, livestock_type, timestamp)
@@ -97,18 +99,20 @@ pasture_days_year_device <- pasture_days_month_device %>%
   summarise(Total_Pasture_Days_Device = sum(Pasture_Days_Month), .groups = "keep")
 
 # Import Reference Data (Placeholder)
-reference_data <- read_csv2(file.path(data_path, "reference_data.csv"))
+reference_data <- read_csv2(file.path(processed_data_path, "lead_zec.csv"))
 
 # Combine Demand Metrics
 demand_summary <- reference_data %>% 
   left_join(pasture_days_year_livestock, by = c("user_id", "livestock_type")) %>% 
   left_join(pasture_days_year_device, by = c("user_id", "device_id")) %>% 
-  mutate(perc_ZEC = round(perc_ZEC, 0)) %>% 
+  mutate(
+    perc_ZEC = case_when(ZEC == 1 ~ 100, TRUE ~ 0), 
+    perc_ZEC = round(perc_ZEC, 0)) %>% 
   group_by(user_id) %>% 
   arrange(desc(perc_ZEC), .by_group = TRUE)
 
 # Import Traceability (Placeholder)
-trace_data <- read_csv2(file.path(data_path, "traceability_data.csv"))
+trace_data <- read_csv2(file.path(raw_data_path, "traceability_data.csv"))
 
 # Rename Device ID
 name1 <- "device_id"
@@ -118,10 +122,10 @@ remove(trace_data)
 # Combine with Traceability
 final_producer <- demand_summary %>% 
   left_join(trace) %>% 
-  select(user_id, origin, livestock_type, Total_Pasture_Days_Livestock, device_id, N, ZEC, perc_ZEC, Total_Pasture_Days_Device, herd_size, herd_id)
+  select(user_id, Origin, livestock_type, Total_Pasture_Days_Livestock, device_id, N, ZEC, perc_ZEC, Total_Pasture_Days_Device, herd_size, herd_id)
 
 # Season Start/End by Management Unit
-unit_data <- read_csv2(file.path(data_path, "unit_data.csv")) %>% 
+unit_data <- read_csv2(file.path(processed_data_path, "ug_processed_data.csv")) %>% 
   select(device_id, livestock_type, management_unit, timestamp) %>% 
   mutate(management_unit = str_replace(management_unit, "/ Unit", "- Unit")) %>% 
   mutate(management_unit = str_replace(management_unit, "_", " - ")) %>% 
@@ -195,7 +199,7 @@ pasture_days_year_device_unit <- pasture_days_month_device_unit %>%
   summarise(Total_Pasture_Days_Device = sum(Pasture_Days_Month), .groups = "keep")
 
 # Import Unit Reference Data (Placeholder)
-unit_reference <- read_csv2(file.path(data_path, "unit_reference_data.csv"))
+unit_reference <- read_csv2(file.path(processed_data_path, "lead_ug.csv"))
 
 # Rename Management Unit for Consistency
 name25 <- "management_unit"
@@ -207,15 +211,20 @@ final_unit <- unit_reference %>%
   left_join(pasture_days_year_livestock_unit, by = c("management_unit", "livestock_type")) %>% 
   left_join(pasture_days_year_device_unit, by = c("management_unit", "device_id")) %>% 
   left_join(trace) %>% 
-  mutate(Perc_Occupancy = round(Perc_Occupancy, 0)) %>% 
+  mutate(
+    Perc_Occupancy = case_when(
+      ZEC == 1 ~ 100, 
+      TRUE ~ 0
+    ),
+    Perc_Occupancy = round(Perc_Occupancy, 0)) %>% 
   group_by(management_unit) %>% 
   arrange(desc(Perc_Occupancy), .by_group = TRUE) %>% 
-  select(management_unit, livestock_type, Total_Pasture_Days_Livestock, device_id, ZEC, N_UG, Perc_Occupancy, Total_Pasture_Days_Device, herd_size, herd_id)
+  select(management_unit, livestock_type, Total_Pasture_Days_Livestock, device_id, ZEC, Perc_Occupancy, Total_Pasture_Days_Device, herd_size, herd_id)
 
 # Export (generic output paths)
-write_csv2(pasture_days_month_livestock_unit, "path/to/output/pasture_days_month_unit.csv")
-write_csv2(season_summary, "path/to/output/season_producer.csv")
-openxlsx::write.xlsx(season_summary, "path/to/output/season_producer.xlsx")
-openxlsx::write.xlsx(final_producer, "path/to/output/demand_producer.xlsx")
-write_csv2(unit_season, "path/to/output/season_unit.csv")
-write_csv2(final_unit, "path/to/output/demand_unit.csv")
+write_csv2(pasture_days_month_livestock_unit, file.path(output_path, "pasture_days_month_unit.csv"))
+write_csv2(season_summary, file.path(output_path, "season_producer.csv"))
+openxlsx::write.xlsx(season_summary, file.path(output_path, "season_producer.xlsx"))
+openxlsx::write.xlsx(final_producer, file.path(output_path, "demand_producer.xlsx"))
+write_csv2(unit_season, file.path(output_path, "season_unit.csv"))
+write_csv2(final_unit, file.path(output_path, "demand_unit.csv"))
