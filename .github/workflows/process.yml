@@ -50,21 +50,8 @@ jobs:
           ${{ runner.os }}-r-4.3-
 
     - name: Install R packages
-      uses: r-lib/actions/setup-r-dependencies@v2
-      with:
-        extra-packages: |
-          sp
-          terra
-          sf
-          tidyterra
-          tidyverse
-          openxlsx
-          readr
-          lubridate
-          scales
-          ggplot2
-        cache-version: 1
-        needs-restart: true
+      run: |
+        Rscript -e 'install.packages(c("sp", "terra", "sf", "tidyterra", "tidyverse", "openxlsx", "readr", "lubridate", "scales", "ggplot2"), repos="https://cloud.r-project.org", Ncpus=4)'
 
     - name: Run clean_I - Spatial Data Cleaning
       run: Rscript clean_I.R
