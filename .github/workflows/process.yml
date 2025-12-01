@@ -31,24 +31,28 @@ jobs:
           libssl-dev \
           libcurl4-openssl-dev          
 
-    - name: Install R packages
-      uses: r-lib/actions/setup-r-dependencies@v2
+    - name: Cache R packages
+      uses: actions/cache@v3
       with:
-        extra-packages:
-          tidyverse
-          openxlsx
-          lubridate
-          ggplot2
-          scales
-          sf
-          terra
+        path: ${{ env.R_LIBS_USER }}
+        key: ${{ runner.os }}-r-4.3-${{ hashFiles('**/DESCRIPTION') }}
+        restore-keys: |
+          ${{ runner.os }}-r-4.3-
 
-    #- name: Run clean_I - Spatial Data Cleaning
-    #  run: Rscript clean_I.R
-    #  env:
-    #    RAW_DATA_PATH: ${{ github.workspace }}/data
-    #    PROCESSED_DATA_PATH: ${{ github.workspace }}/data/output
-    #    OUTPUT_PATH: ${{ github.workspace }}/output
+    - name: Install R packages
+      run: |
+        install.packages(c(
+          "sp", "terra", "sf", "tidyterra", "tidyverse",
+          "openxlsx", "readr", "lubridate", "scales", "ggplot2"
+        ), repos = "https://cloud.r-project.org")
+      shell: Rscript {0}
+
+    - name: Run clean_I - Spatial Data Cleaning
+      run: Rscript clean_I.R
+      env:
+        RAW_DATA_PATH: ${{ github.workspace }}/data
+        PROCESSED_DATA_PATH: ${{ github.workspace }}/data/output
+        OUTPUT_PATH: ${{ github.workspace }}/output
 
     - name: Run clean_II - Grazing Demand Analysis
       run: Rscript clean_II.R
