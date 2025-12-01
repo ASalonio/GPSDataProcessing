@@ -10,15 +10,15 @@
 .Rproj.user/
 
 # Output files and directories (from scripts)
-output/
-*.csv
-*.xlsx
-*.png
-*.shp
-*.dbf
-*.prj
-*.shx
-*.gpkg  # Additional spatial format
+#output/
+#*.csv
+#*.xlsx
+#*.png
+#*.shp
+#*.dbf
+#*.prj
+#*.shx
+#*.gpkg  # Additional spatial format
 
 # Temporary files from R Markdown or knitr
 *_cache/

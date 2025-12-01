@@ -1,0 +1,4 @@
+﻿management_unit;device_id;livestock_type;ZEC;UG_1;perc_UG_1;UG_2;perc_UG_2
+UG001;COW001;vacuno;2;2;100;0;0
+UG001;COW002;vacuno;2;2;100;0;0
+UG002;SHE001;ovino;0;0;0;1;100

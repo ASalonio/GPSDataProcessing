@@ -1,0 +1,5 @@
+﻿timestamp;device_id;livestock_type;ZEC;management_unit;altitude;season;slope_category;land_cover_type;clearing_year_2020;clearing_year_2021
+2024-01-01 08:00:00;COW001;vacuno;1;UG001;850;Winter;<30%;Pasture - Scrubland;1;0
+2024-01-01 09:00:00;COW001;vacuno;1;UG001;860;Winter;<30%;Herbaceous Meadow - Pasture;1;0
+2024-01-02 08:00:00;SHE001;ovino;0;UG002;780;Winter;30-50%;Shrublands;0;1
+2024-01-03 08:00:00;COW002;vacuno;1;UG001;855;Winter;<30%;Pasture - Scrubland;1;0

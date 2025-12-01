@@ -1,0 +1,6 @@
+﻿ID;user_id;device_id;livestock_type;Origin;ZEC;timestamp;x;y;management_unit
+1;USER1;COW001;vacuno;zone1;1;2024-01-01 08:00:00;42.123;-5.678;UG001
+2;USER1;COW001;vacuno;zone1;1;2024-01-01 09:00:00;42.124;-5.679;UG001
+3;USER2;SHE001;ovino;zone2;0;2024-01-02 08:00:00;42.200;-5.700;UG002
+4;USER1;COW002;vacuno;zone1;1;2024-01-03 08:00:00;42.121;-5.677;UG001
+5;USER1;COW002;vacuno;zone1;1;2024-01-03 09:00:00;42.122;-5.678;UG001

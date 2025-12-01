@@ -1,0 +1,2 @@
+user_id;Total_Pasture_Days;Season_Duration;Lead_Device;livestock_type.x;Start_Date;Lead_Device_End;livestock_type.y;End_Date
+USER1;2;2d 1H 0M 0S;COW001;vacuno;2024-01-01T08:00:00Z;COW002;vacuno;2024-01-03T09:00:00Z

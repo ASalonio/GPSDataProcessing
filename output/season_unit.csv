@@ -1,0 +1,3 @@
+management_unit;Total_Pasture_Days;Season_Duration;Lead_Device;Start_Date;Lead_Device_End;End_Date
+UG001;2;2d 1H 0M 0S;COW001;2024-01-01T08:00:00Z;COW002;2024-01-03T09:00:00Z
+UG002;1;0S;SHE001;2024-01-02T08:00:00Z;SHE001;2024-01-02T08:00:00Z

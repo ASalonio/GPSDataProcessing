@@ -1,0 +1,6 @@
+﻿user_id;device_id;livestock_type;timestamp;ZEC;management_unit
+USER1;COW001;vacuno;2024-01-01 08:00:00;1;UG001
+USER1;COW001;vacuno;2024-01-01 09:00:00;1;UG001
+USER2;SHE001;ovino;2024-01-02 08:00:00;0;UG002
+USER1;COW002;vacuno;2024-01-03 08:00:00;1;UG001
+USER1;COW002;vacuno;2024-01-03 09:00:00;1;UG001

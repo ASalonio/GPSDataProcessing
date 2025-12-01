@@ -1,0 +1,4 @@
+management_unit;livestock_type;Total_Pasture_Days_Livestock;device_id;ZEC;Perc_Occupancy;Total_Pasture_Days_Device;herd_size;herd_id
+UG001;vacuno;2;COW001;2;0;1;25;HERD001
+UG001;vacuno;2;COW002;2;0;1;25;HERD001
+UG002;ovino;1;SHE001;0;0;1;NA;NA

@@ -1,0 +1,4 @@
+﻿user_id;livestock_type;N;ZEC;perc_ZEC;device_id;Origin
+USER1;vacuno;20;18;90;COW001;zone1
+USER1;vacuno;20;18;90;COW002;zone1
+USER2;ovino;5;0;0;SHE001;zone2
