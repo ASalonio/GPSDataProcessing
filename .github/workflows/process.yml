@@ -2,9 +2,9 @@ name: process livestock GPS data v-1.0
 
 on:
   push:
-    paths:
-      - 'data/**'
-      - '.github/workflows/**'
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
