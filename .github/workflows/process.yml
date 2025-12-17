@@ -50,17 +50,20 @@ jobs:
           sf
           tidyterra
           tidyverse
-          openxlsx
-          readr
           lubridate
-          scales
-          ggplot2
         cache: true
     
     - name: Download data
       run: |
         curl  -L https://storage.googleapis.com/gps_data_processing/data-v1.zip \
           -o data.zip
+      
+    - name: Debug data structure
+      run: |
+        echo "PWD:"
+        pwd
+        echo "Tree:"
+        find data -maxdepth 3 -type f | head -50
 
     - name: Inspect data directory
       run: |
@@ -101,19 +104,3 @@ jobs:
           output/*.png
           data/processed/*.csv
         retention-days: 30
-
-    - name: Commit and push outputs
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-
-        git add output/ data/processed/ || true
-
-        if git diff --staged --quiet; then
-          echo "No changes to commit"
-        else
-          git commit -m "Automated data processing: ${{ github.sha }} [skip ci]"
-          git push origin HEAD:${{ github.ref }} --force
-        fi
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

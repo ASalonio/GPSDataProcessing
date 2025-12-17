@@ -20,8 +20,6 @@ library(readr)
 library(tidyr)
 library(dplyr)  # Use terra:: where needed to avoid conflicts with dplyr
 library(stringr)
-library(tibble)
-library(openxlsx)
 library(lubridate)
 
 # Import data (placeholders for processed data files)

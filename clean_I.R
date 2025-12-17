@@ -18,7 +18,6 @@ library(sp)
 library(terra)
 library(sf)
 library(tidyverse)
-library(openxlsx)
 
 # Create the outpout folder (silently, even if it exists)
 dir.create("output", showWarnings = FALSE, recursive = TRUE)
