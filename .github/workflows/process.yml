@@ -62,9 +62,9 @@ jobs:
         curl  -L https://storage.googleapis.com/gps_data_processing/data-v1.zip \
           -o data.zip
 
-    - - name: Inspect data directory
-        run: |
-          ls -R data | head -50
+    - name: Inspect data directory
+      run: |
+        ls -R data | head -50
 
     - name: Run clean_I - Spatial Data Cleaning
       run: Rscript clean_I.R
