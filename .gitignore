@@ -1,0 +1,63 @@
+# Data is downloaded at runtime via Google Cloud Storage
+data/
+
+# R-specific files
+.Rhistory
+.Rapp.history
+.RData
+.RDataTmp
+.Ruserdata
+*-Ex.R
+
+# RStudio project files
+.Rproj.user/
+
+# Output files and directories (from scripts)
+#output/
+#*.csv
+#*.xlsx
+#*.png
+#*.shp
+#*.dbf
+#*.prj
+#*.shx
+#*.gpkg  # Additional spatial format
+
+# Temporary files from R Markdown or knitr
+*_cache/
+*/cache/
+*.utf8.md
+*.knit.md
+
+# Environment and configuration files
+.Renviron
+.env
+.httr-oauth  # OAuth2 token for API authentication
+
+# Package-related files (if building a package)
+*.tar.gz
+*.Rcheck/
+
+# Documentation artifacts (if generating vignettes or pkgdown site)
+vignettes/*.html
+vignettes/*.pdf
+docs/
+
+# RStudio Connect deployment
+rsconnect/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# IDE/editor temporary files
+*.swp
+*~
+.#*
+
+# Package lock files (if using renv)
+renv.lock
+
+# Logs or temporary output
+*.log
+*.out
