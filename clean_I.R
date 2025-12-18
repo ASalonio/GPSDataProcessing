@@ -101,7 +101,7 @@ clip_zone1 <- zone1_proj[inside1, ] %>%
   tidyterra::select(ID, user_id, device_id, timestamp)
 message(
   "Extracted points: ", nrow(clip_zone1),
-  " | Expected (inside1): ", sum(inside1)
+  " | Expected: ", sum(inside1)
 )
 
 inside2 <- is.related(zone2_proj, country_bound, "within")
@@ -116,7 +116,7 @@ clip_zone2 <- zone2_proj[inside2, ] %>%
   tidyterra::select(ID, user_id, device_id, timestamp)
 message(
   "Extracted points: ", nrow(clip_zone2),
-  " | Expected (inside2): ", sum(inside2)
+  " | Expected: ", sum(inside2)
 )
 
 # Double-check geometry type before converting
@@ -135,14 +135,14 @@ message(
   sum(inside_zec1),
   " / ",
   length(inside_zec1),
-  "zone1 points inside zec boundaries"
+  " zone1 points inside zec boundaries"
 )
 
 clip_zec_zone1 <- clip_zone1[inside_zec1, ] %>%
   tidyterra::select(ID, user_id, device_id, timestamp)
 message(
   "Extracted points: ", nrow(clip_zec_zone1),
-  " | Expected (inside_zec1): ", sum(inside_zec1)
+  " | Expected: ", sum(inside_zec1)
 )
 
 inside_zec2 <- is.related(clip_zone2, zec_bound, "within")
@@ -150,14 +150,14 @@ message(
   sum(inside_zec2),
   " / ",
   length(inside_zec2),
-  "zone2 points inside zec boundaries"
+  " zone2 points inside zec boundaries"
 )
 
 clip_zec_zone2 <- clip_zone2[inside_zec2, ] %>%
   tidyterra::select(ID, user_id, device_id, timestamp)
 message(
   "Extracted points: ", nrow(clip_zec_zone2),
-  " | Expected (inside_zec2): ", sum(inside_zec2)
+  " | Expected: ", sum(inside_zec2)
 )
 
 # Double-check geometry type before converting
@@ -265,20 +265,25 @@ lead_zec <- perc_zec_user %>%
 # Analysis at Management Unit (UG) scale
 total_v <- terra::vect(total_with_trace, geom = c("x", "y"), crs = "EPSG:25830")
 
-# Clip to UG boundaries keeping geometry as points
-inside_ug <- is.related(total_v, ug_bound, "within")
+# Extract points within UG (use extract to preserve the UG column)
+inside_ug <- terra::extract(ug_bound["UG"], total_v)
+total_v$UG <- inside_ug$UG
+n_inside <- sum(!is.na(total_v$UG))
 message(
-  sum(inside_ug),
+  n_inside,
   " / ",
-  length(inside_ug),
-  "total points inside UG boundaries"
+  nrow(total_v),
+  " total points inside UG boundaries"
 )
 
-clip_ug <- total_v[inside_ug, ]
+clip_ug <- total_v[!is.na(total_v$UG), ]
 message(
   "Extracted points: ", nrow(clip_ug),
-  " | Expected (inside_ug): ", sum(inside_ug)
+  " | Expected: ", n_inside
 )
+
+# Sanity check (should always match)
+stopifnot(nrow(clip_ug) == n_inside)
 
 # Convert to data frames
 list_clip_ug <- terra::as.data.frame(clip_ug, geom = "XY")
