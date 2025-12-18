@@ -89,13 +89,35 @@ zone1_proj <- terra::project(zone1_v, "EPSG:25830")
 zone2_proj <- terra::project(zone2_v, "EPSG:25830")
 
 # Clip to country boundaries keeping geometry as points
-inside1 <- is.related(zone1_proj, country_bound, "intersects")
+inside1 <- is.related(zone1_proj, country_bound, "within")
+message(
+  sum(inside1),
+  " / ",
+  length(inside1),
+  "zone1 points inside country boundaries"
+)
+
 clip_zone1 <- zone1_proj[inside1, ] %>%
   tidyterra::select(ID, user_id, device_id, timestamp)
+message(
+  "Extracted points: ", nrow(clip_zone1),
+  " | Expected (inside1): ", sum(inside1)
+)
 
-inside2 <- is.related(zone2_proj, country_bound, "intersects")
+inside2 <- is.related(zone2_proj, country_bound, "within")
+message(
+  sum(inside2),
+  " / ",
+  length(inside2),
+  "zone2 points inside country boundaries"
+)
+
 clip_zone2 <- zone2_proj[inside2, ] %>%
   tidyterra::select(ID, user_id, device_id, timestamp)
+message(
+  "Extracted points: ", nrow(clip_zone2),
+  " | Expected (inside2): ", sum(inside2)
+)
 
 # Double-check geometry type before converting
 if (!terra::geomtype(clip_zone1) == "points")
@@ -108,11 +130,35 @@ list_zone1 <- terra::as.data.frame(clip_zone1, geom = "XY")
 list_zone2 <- terra::as.data.frame(clip_zone2, geom = "XY")
 
 # Clip to ZEC boundaries keeping geometry as points
-clip_zec_zone1 <- terra::intersect(clip_zone1, zec_bound) %>%
-  tidyterra::select(ID, user_id, device_id, timestamp)
+inside_zec1 <- is.related(clip_zone1, zec_bound, "within")
+message(
+  sum(inside_zec1),
+  " / ",
+  length(inside_zec1),
+  "zone1 points inside zec boundaries"
+)
 
-clip_zec_zone2 <- terra::intersect(clip_zone2, zec_bound) %>%
+clip_zec_zone1 <- clip_zone1[inside_zec1, ] %>%
   tidyterra::select(ID, user_id, device_id, timestamp)
+message(
+  "Extracted points: ", nrow(clip_zec_zone1),
+  " | Expected (inside_zec1): ", sum(inside_zec1)
+)
+
+inside_zec2 <- is.related(clip_zone2, zec_bound, "within")
+message(
+  sum(inside_zec2),
+  " / ",
+  length(inside_zec2),
+  "zone2 points inside zec boundaries"
+)
+
+clip_zec_zone2 <- clip_zone2[inside_zec2, ] %>%
+  tidyterra::select(ID, user_id, device_id, timestamp)
+message(
+  "Extracted points: ", nrow(clip_zec_zone2),
+  " | Expected (inside_zec2): ", sum(inside_zec2)
+)
 
 # Double-check geometry type before converting
 if (!terra::geomtype(clip_zec_zone1) == "points")
@@ -218,9 +264,26 @@ lead_zec <- perc_zec_user %>%
 
 # Analysis at Management Unit (UG) scale
 total_v <- terra::vect(total_with_trace, geom = c("x", "y"), crs = "EPSG:25830")
-total_ug <- terra::intersect(total_v, ug_bound)
+
+# Clip to UG boundaries keeping geometry as points
+inside_ug <- is.related(total_v, ug_bound, "within")
+message(
+  sum(inside_ug),
+  " / ",
+  length(inside_ug),
+  "total points inside UG boundaries"
+)
+
+clip_ug <- total_v[inside_ug, ]
+message(
+  "Extracted points: ", nrow(clip_ug),
+  " | Expected (inside_ug): ", sum(inside_ug)
+)
+
+# Convert to data frames
 list_total_ug <- terra::as.data.frame(total_ug, geom = "XY")
 
+# Unit assignment
 nom_ug <- list_total_ug %>%
   distinct(ID, user_id, device_id, ZEC, .keep_all = TRUE) %>%
   select(ID, UG)
@@ -231,6 +294,25 @@ ug_data <- total_with_trace %>%
 
 ug_filtered <- ug_data %>%
   filter(UG != "No_Unit")
+
+# Percentage of zec points with ug assigned
+inside_zec <- sum(!is.na(ug_data$ZEC == 1))
+assigned_ug <- sum(ug_data$UG != "No_Unit")
+
+message(
+  assigned_ug,
+  " / ",
+  inside_zec,
+  " points (",
+  round((assigned_ug / inside_zec) * 100, 2),
+  "%) inside ZEC are assigned to a UG"
+)
+
+# No point outside ZEC should have a UG
+stopifnot(all(ug_data$UG[ug_data$ZEC == 0] == "No_Unit"))
+
+# Assigned UG cannot exceed points inside ZEC
+stopifnot(assigned_ug <= inside_zec)
 
 # Filter collars with minimum observations in ZEC (e.g., 48 for one day)
 id_ug_filter <- ug_filtered %>%
