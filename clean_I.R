@@ -281,10 +281,10 @@ message(
 )
 
 # Convert to data frames
-list_total_ug <- terra::as.data.frame(total_ug, geom = "XY")
+list_clip_ug <- terra::as.data.frame(clip_ug, geom = "XY")
 
 # Unit assignment
-nom_ug <- list_total_ug %>%
+nom_ug <- list_clip_ug %>%
   distinct(ID, user_id, device_id, ZEC, .keep_all = TRUE) %>%
   select(ID, UG)
 
