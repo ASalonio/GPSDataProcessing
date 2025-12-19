@@ -228,7 +228,7 @@ message(
   " / ",
   total_points,
   " points (",
-  round((assigned_livestock / total_with_trace) * 100, 2),
+  round((assigned_livestock / total_points) * 100, 2),
   "%) total points are assigned to a livestock"
 )
 
@@ -285,18 +285,19 @@ n_inside <- sum(!is.na(total_v$UG))
 message(
   n_inside,
   " / ",
-  nrow(total_v),
+  total_points,
   " total points inside UG boundaries"
 )
 
 clip_ug <- total_v[!is.na(total_v$UG), ]
+n_extracted <- nrow(clip_ug)
 message(
-  "Extracted points: ", nrow(clip_ug),
+  "Extracted points: ", n_extracted,
   " | Expected: ", n_inside
 )
 
 # Sanity check (should always match)
-stopifnot(nrow(clip_ug) == n_inside)
+stopifnot(n_extracted == n_inside)
 
 # Convert to data frames
 list_clip_ug <- terra::as.data.frame(clip_ug, geom = "XY")
@@ -316,13 +317,14 @@ ug_filtered <- ug_data %>%
 # Percentage of zec points with ug assigned
 inside_zec <- sum(ug_data$ZEC == 1)
 assigned_ug <- sum(ug_data$UG != "No_Unit")
+perc_assigned_ug <- round((assigned_ug / inside_zec) * 100, 2)
 
 message(
   assigned_ug,
   " / ",
   inside_zec,
   " points (",
-  round((assigned_ug / inside_zec) * 100, 2),
+  perc_assigned_ug,
   "%) inside ZEC are assigned to a UG"
 )
 
