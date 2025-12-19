@@ -12,11 +12,10 @@ options(
 )
 
 # Libraries
+library(tidyverse)
 library(sf)
 library(terra)
-library(tidyverse)
 library(tidyterra)
-library(stringr)
 
 # Import data (placeholder for processed data)
 raw_data_path <- Sys.getenv("RAW_DATA_PATH", "data")
@@ -40,20 +39,20 @@ clean_data <- input_data %>%
   mutate(UG = str_replace(UG, "/", "-")) %>%
   mutate(UG = str_replace(UG, "No Unit", "No - Unit")) %>%
   mutate(
-    month = months(timestamp),
+    month = str_to_lower(month(timestamp, label = TRUE), locale = "en"),
     season = case_when(
-      month == "enero" ~ "invierno",
-      month == "febrero" ~ "invierno",
-      month == "marzo" ~ "primavera",
-      month == "abril" ~ "primavera",
-      month == "mayo" ~ "primavera",
-      month == "junio" ~ "verano",
-      month == "julio" ~ "verano",
-      month == "agosto" ~ "verano",
-      month == "septiembre" ~ "otoño",
-      month == "octubre" ~ "otoño",
-      month == "noviembre" ~ "otoño",
-      month == "diciembre" ~ "invierno"
+      month == "january" ~ "winter",
+      month == "february" ~ "winter",
+      month == "march" ~ "spring",
+      month == "april" ~ "spring",
+      month == "may" ~ "spring",
+      month == "june" ~ "summer",
+      month == "july" ~ "summer",
+      month == "august" ~ "summer",
+      month == "september" ~ "fall",
+      month == "october" ~ "fall",
+      month == "november" ~ "fall",
+      month == "december" ~ "winter"
     )
   )
 

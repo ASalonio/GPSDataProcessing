@@ -13,14 +13,11 @@ options(
 )
 
 # Libraries
-library(sp)
-library(terra)
-library(sf)
-library(readr)
-library(tidyr)
-library(dplyr)  # Use terra:: where needed to avoid conflicts with dplyr
-library(stringr)
+library(tidyverse)
 library(lubridate)
+library(sf)
+library(terra)
+library(sp)
 
 # Import data (placeholders for processed data files)
 raw_data_path <- Sys.getenv("RAW_DATA_PATH", "data")

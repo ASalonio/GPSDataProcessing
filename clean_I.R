@@ -14,10 +14,10 @@ options(
 )
 
 # Libraries
-library(sp)
-library(terra)
-library(sf)
 library(tidyverse)
+library(sf)
+library(terra)
+library(sp)
 
 # Create the outpout folder (silently, even if it exists)
 dir.create("output", showWarnings = FALSE, recursive = TRUE)
@@ -94,7 +94,7 @@ message(
   sum(inside1),
   " / ",
   length(inside1),
-  "zone1 points inside country boundaries"
+  " zone1 points inside country boundaries"
 )
 
 clip_zone1 <- zone1_proj[inside1, ] %>%
@@ -109,7 +109,7 @@ message(
   sum(inside2),
   " / ",
   length(inside2),
-  "zone2 points inside country boundaries"
+  " zone2 points inside country boundaries"
 )
 
 clip_zone2 <- zone2_proj[inside2, ] %>%
@@ -219,6 +219,19 @@ total_with_trace <- total_with_trace %>%
 
 remove(total_data)
 
+# Percentage of total points with livestock assigned
+assigned_livestock <- sum(total_with_trace$livestock != "No_Livestock")
+total_points <- nrow(total_with_trace)
+
+message(
+  assigned_livestock,
+  " / ",
+  total_points,
+  " points (",
+  round((assigned_livestock / total_with_trace) * 100, 2),
+  "%) total points are assigned to a livestock"
+)
+
 # Lead collars within each livestock type by ZEC
 # Filter collars with minimum observations in ZEC (e.g., 48 for one day)
 id_filter <- total_with_trace %>%
@@ -301,7 +314,7 @@ ug_filtered <- ug_data %>%
   filter(UG != "No_Unit")
 
 # Percentage of zec points with ug assigned
-inside_zec <- sum(!is.na(ug_data$ZEC == 1))
+inside_zec <- sum(ug_data$ZEC == 1)
 assigned_ug <- sum(ug_data$UG != "No_Unit")
 
 message(

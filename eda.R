@@ -11,7 +11,6 @@ options(
 
 # Libraries
 library(scales)
-library(ggplot2)
 library(sf)
 library(tidyverse)
 
@@ -31,7 +30,7 @@ bar_data <- input_data %>%
     livestock == "caprino" ~ "Caprine",
     livestock == "equino" ~ "Equine",
     livestock == "ovino" ~ "Ovine",
-    livestock == "Sin_Gan" ~ "No_ID",
+    livestock == "No_Livestock" ~ "No_ID",
     livestock == "vacuno" ~ "Bovine"
   )) %>%
   filter(livestock != "No_ID") %>%
@@ -73,7 +72,7 @@ pie_data <- complete_data %>%
       livestock == "caprino" ~ "Caprine",
       livestock == "equino" ~ "Equine",
       livestock == "ovino" ~ "Ovine",
-      livestock == "Sin_Gan" ~ "No_ID",
+      livestock == "No_Livestock" ~ "No_ID",
       livestock == "vacuno" ~ "Bovine"
     )
   ) %>%
@@ -164,7 +163,7 @@ monthly_grazing_unit <- monthly_grazing_unit %>%
     livestock == "caprino" ~ "Caprine",
     livestock == "equino" ~ "Equine",
     livestock == "ovino" ~ "Ovine",
-    livestock == "Sin_Gan" ~ "No_ID",
+    livestock == "No_Livestock" ~ "No_ID",
     livestock == "vacuno" ~ "Bovine"
   )) %>%
   filter(livestock != "No_ID")
@@ -173,7 +172,7 @@ monthly_graz <- ggplot(monthly_grazing_unit,
   aes(x = Month, y = Pasture_Days_Month)
 ) +
   geom_point(aes(color = livestock), size = 1) +
-  geom_smooth(se = FALSE, aes(color = livestock)) +
+  geom_smooth(se = FALSE, aes(color = livestock), method = "lm") +
   facet_wrap(~ UG) +
   labs(
     title = "Monthly ZEC Grazing Days by Livestock and Management Unit",
@@ -233,10 +232,10 @@ landscape_filtered <- landscape_data |>
       livestock == "caprino" ~ "Caprine",
       livestock == "equino" ~ "Equine",
       livestock == "ovino" ~ "Ovine",
-      livestock == "Sin_Gan" ~ "No_ID",
+      livestock == "No_Livestock" ~ "No_ID",
       livestock == "vacuno" ~ "Bovine"
     ),
-    season = factor(season, levels = c("Winter", "Spring", "Summer", "Fall")),
+    season = factor(season, levels = c("winter", "spring", "summer", "fall")),
     slope_category = factor(slope, levels = c("<30%", "30-50%", ">50%"))
   ) %>%
   filter(!is.na(livestock)) %>%
@@ -283,14 +282,14 @@ p_altitude <- ggplot(filtered_data_clean,
     legend.justification = "center",
     legend.background = element_rect(fill = "white", color = NA),
     legend.title = element_text(size = 9),
-    legend.text = element_text(size = 8)
+    legend.text = element_text(size = 8),
+    legend.key.spacing.x = unit(0.5, "cm")
   ) +
   guides(
     fill = guide_legend(
       ncol = 4,
       byrow = TRUE,
-      keywidth = unit(1.5, "cm"),
-      keyspacing.x = unit(0.5, "cm")
+      keywidth = unit(1.5, "cm")
     )
   )
 
@@ -350,7 +349,10 @@ ggsave(
 ## Land Cover Distribution by Livestock Type ##
 land_cover_summary <- landscape_filtered %>%
   group_by(livestock, eu1_es) %>%
-  summarise(count = n()) %>%
+  summarise(
+    count = n(),
+    .groups = "drop"
+  ) %>%
   group_by(livestock) %>%
   mutate(percentage = (count / sum(count)) * 100)
 
