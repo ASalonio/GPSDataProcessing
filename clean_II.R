@@ -96,7 +96,7 @@ pasture_days_month_livestock <- clean_data %>%
     day = day(timestamp),
     month = str_to_lower(month(timestamp, label = TRUE), locale = "en")
   ) %>%
-  group_by(user_id, livestock, Month) %>%
+  group_by(user_id, livestock, month) %>%
   summarise(
     Pasture_Days_Month = n_distinct(day),
     .groups = "keep"
