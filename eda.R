@@ -51,9 +51,6 @@ p_bar <- ggplot(bar_data, aes(x = livestock, y = n)) +
     panel.background = element_rect(fill = "white", color = NA)
   )
 
-# Display
-plot(p_bar)
-
 # Save the Plot
 ggsave(
   filename = file.path(output_path, "gps_obs_by_livestock.png"),
@@ -106,9 +103,6 @@ p_pie <- ggplot(pie_data, aes(x = "", y = prop, fill = zec_status)) +
     legend.position = "right"
   )
 
-# Display
-plot(p_pie)
-
 # Save the Plot
 ggsave(
   filename = file.path(output_path, "zec_proportion.png"),
@@ -145,9 +139,6 @@ total_graz <- ggplot(season_unit,
     panel.background = element_rect(fill = "white", color = NA)
   )
 
-# Display
-plot(total_graz)
-
 # Save the Plot
 ggsave(
   filename = file.path(output_path, "total_grazing_days_by_ug.png"),
@@ -166,7 +157,11 @@ monthly_grazing_unit <- monthly_grazing_unit %>%
     livestock == "No_Livestock" ~ "No_ID",
     livestock == "vacuno" ~ "Bovine"
   )) %>%
-  filter(livestock != "No_ID")
+  filter(livestock != "No_ID") %>%
+  mutate(month = factor(month,
+                        levels = c("jan", "feb", "mar", "apr", "may", "jun",
+                                   "jul", "aug", "sep", "oct", "nov", "dec"),
+                        ordered = TRUE))
 
 monthly_graz <- ggplot(monthly_grazing_unit,
   aes(x = month, y = Pasture_Days_Month)
@@ -203,9 +198,6 @@ monthly_graz <- ggplot(monthly_grazing_unit,
   guides(
     color = guide_legend(ncol = 2, byrow = TRUE)
   )
-
-# Display
-plot(monthly_graz)
 
 # Save the Plot
 ggsave(
@@ -293,9 +285,6 @@ p_altitude <- ggplot(filtered_data_clean,
     )
   )
 
-# Display
-plot(p_altitude)
-
 # Save
 ggsave(
   filename = file.path(output_path, "altitude_distribution_by_season.png"),
@@ -333,9 +322,6 @@ p_slope <- ggplot(landscape_filtered,
     strip.text = element_text(size = 10, face = "bold"),
     legend.position = "none"
   )
-
-# Display
-plot(p_slope)
 
 # Save
 ggsave(
@@ -382,9 +368,6 @@ p_land_cover <- ggplot(land_cover_summary,
     axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "none"
   )
-
-# Display
-plot(p_land_cover)
 
 # Save
 ggsave(

@@ -41,18 +41,18 @@ clean_data <- input_data %>%
   mutate(
     month = str_to_lower(month(timestamp, label = TRUE), locale = "en"),
     season = case_when(
-      month == "january" ~ "winter",
-      month == "february" ~ "winter",
-      month == "march" ~ "spring",
-      month == "april" ~ "spring",
+      month == "jan" ~ "winter",
+      month == "feb" ~ "winter",
+      month == "mar" ~ "spring",
+      month == "apr" ~ "spring",
       month == "may" ~ "spring",
-      month == "june" ~ "summer",
-      month == "july" ~ "summer",
-      month == "august" ~ "summer",
-      month == "september" ~ "fall",
-      month == "october" ~ "fall",
-      month == "november" ~ "fall",
-      month == "december" ~ "winter"
+      month == "jun" ~ "summer",
+      month == "jul" ~ "summer",
+      month == "aug" ~ "summer",
+      month == "sep" ~ "fall",
+      month == "oct" ~ "fall",
+      month == "nov" ~ "fall",
+      month == "dec" ~ "winter"
     )
   )
 
