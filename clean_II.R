@@ -199,7 +199,11 @@ exit_unit <- unit_data %>%
   select(Lead_Device_End, UG, End_Date)
 
 # Combine Entry and Exit for Units
-unit_union <- entry_unit %>% left_join(exit_unit, keep = FALSE)
+unit_union <- entry_unit %>%
+  left_join(
+    exit_unit,
+    keep = FALSE
+  )
 
 # Calculate Season Duration for Units
 unit_season <- unit_union %>%
@@ -259,8 +263,8 @@ pasture_days_year_livestock_unit <- pasture_days_month_livestock_unit %>%
 # Pasture Days by Device per Unit
 pasture_days_month_device_unit <- unit_data %>%
   mutate(
-    Day = day(timestamp),
-    Month = str_to_lower(month(timestamp, label = TRUE), locale = "en")
+    day = day(timestamp),
+    month = str_to_lower(month(timestamp, label = TRUE), locale = "en")
   ) %>%
   group_by(UG, device_id, month) %>%
   summarise(
