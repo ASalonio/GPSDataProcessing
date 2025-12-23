@@ -169,7 +169,7 @@ monthly_grazing_unit <- monthly_grazing_unit %>%
   filter(livestock != "No_ID")
 
 monthly_graz <- ggplot(monthly_grazing_unit,
-  aes(x = Month, y = Pasture_Days_Month)
+  aes(x = month, y = Pasture_Days_Month)
 ) +
   geom_point(aes(color = livestock), size = 1) +
   geom_smooth(se = FALSE, aes(color = livestock), method = "lm") +
