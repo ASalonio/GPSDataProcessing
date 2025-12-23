@@ -66,12 +66,12 @@ season_summary <- season_union %>%
 pasture_days_month_user <- clean_data %>%
   group_by(user_id) %>%
   mutate(
-    Day = day(timestamp),
-    Month = month(timestamp)
+    day = day(timestamp),
+    month = str_to_lower(month(timestamp, label = TRUE), locale = "en")
   ) %>%
-  group_by(user_id, Month) %>%
+  group_by(user_id, month) %>%
   summarise(
-    Pasture_Days_Month = n_distinct(Day),
+    Pasture_Days_Month = n_distinct(day),
     .groups = "keep"
   )
 
@@ -93,12 +93,12 @@ season_summary <- season_summary %>%
 pasture_days_month_livestock <- clean_data %>%
   group_by(user_id, livestock) %>%
   mutate(
-    Day = day(timestamp),
-    Month = month(timestamp)
+    day = day(timestamp),
+    month = str_to_lower(month(timestamp, label = TRUE), locale = "en")
   ) %>%
   group_by(user_id, livestock, Month) %>%
   summarise(
-    Pasture_Days_Month = n_distinct(Day),
+    Pasture_Days_Month = n_distinct(day),
     .groups = "keep"
   )
 
@@ -113,12 +113,12 @@ pasture_days_year_livestock <- pasture_days_month_livestock %>%
 pasture_days_month_device <- clean_data %>%
   group_by(user_id, device_id) %>%
   mutate(
-    Day = day(timestamp),
-    Month = month(timestamp)
+    day = day(timestamp),
+    month = str_to_lower(month(timestamp, label = TRUE), locale = "en")
   ) %>%
-  group_by(user_id, device_id, Month) %>%
+  group_by(user_id, device_id, month) %>%
   summarise(
-    Pasture_Days_Month = n_distinct(Day),
+    Pasture_Days_Month = n_distinct(day),
     .groups = "keep"
   )
 
@@ -215,12 +215,12 @@ unit_season <- unit_union %>%
 pasture_days_month_unit <- unit_data %>%
   group_by(UG) %>%
   mutate(
-    Day = day(timestamp),
-    Month = month(timestamp)
+    day = day(timestamp),
+    month = str_to_lower(month(timestamp, label = TRUE), locale = "en")
   ) %>%
-  group_by(UG, Month) %>%
+  group_by(UG, month) %>%
   summarise(
-    Pasture_Days_Month = n_distinct(Day),
+    Pasture_Days_Month = n_distinct(day),
     .groups = "keep"
   )
 
@@ -240,12 +240,12 @@ unit_season <- unit_season %>%
 pasture_days_month_livestock_unit <- unit_data %>%
   group_by(UG, livestock) %>%
   mutate(
-    Day = day(timestamp),
-    Month = month(timestamp)
+    day = day(timestamp),
+    month = str_to_lower(month(timestamp, label = TRUE), locale = "en")
   ) %>%
-  group_by(UG, livestock, Month) %>%
+  group_by(UG, livestock, month) %>%
   summarise(
-    Pasture_Days_Month = n_distinct(Day),
+    Pasture_Days_Month = n_distinct(day),
     .groups = "keep"
   )
 
@@ -260,11 +260,11 @@ pasture_days_year_livestock_unit <- pasture_days_month_livestock_unit %>%
 pasture_days_month_device_unit <- unit_data %>%
   mutate(
     Day = day(timestamp),
-    Month = month(timestamp)
+    Month = str_to_lower(month(timestamp, label = TRUE), locale = "en")
   ) %>%
-  group_by(UG, device_id, Month) %>%
+  group_by(UG, device_id, month) %>%
   summarise(
-    Pasture_Days_Month = n_distinct(Day),
+    Pasture_Days_Month = n_distinct(day),
     .groups = "keep"
   )
 
