@@ -40,21 +40,21 @@ jobs:
     - name: Run clean_II - Grazing Demand Analysis
       run: Rscript clean_II.R
       env:
-        PROCESSED_DATA_PATH: ${{ github.workspace }}/${{ github.workspace }}/data/processed
-        OUTPUT_PATH: ${{ github.workspace }}/${{ github.workspace }}/output
+        PROCESSED_DATA_PATH: ${{ github.workspace }}/data/processed
+        OUTPUT_PATH: ${{ github.workspace }}/output
 
     - name: Run clean_III - Landscape Analysis
       run: Rscript clean_III.R
       env:
-        RAW_DATA_PATH: ${{ github.workspace }}/${{ github.workspace }}/data
-        PROCESSED_DATA_PATH: ${{ github.workspace }}/${{ github.workspace }}/data/processed
-        OUTPUT_PATH: ${{ github.workspace }}/${{ github.workspace }}/output
+        RAW_DATA_PATH: ${{ github.workspace }}/data
+        PROCESSED_DATA_PATH: ${{ github.workspace }}/data/processed
+        OUTPUT_PATH: ${{ github.workspace }}/output
 
     - name: Run EDA
       run: Rscript eda.R
       env:
-        PROCESSED_DATA_PATH: ${{ github.workspace }}/${{ github.workspace }}/data/processed
-        OUTPUT_PATH: ${{ github.workspace }}/${{ github.workspace }}/output
+        PROCESSED_DATA_PATH: ${{ github.workspace }}/data/processed
+        OUTPUT_PATH: ${{ github.workspace }}/output
 
     - name: Upload outputs
       uses: actions/upload-artifact@v4
