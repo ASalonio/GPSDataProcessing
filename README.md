@@ -1,113 +1,204 @@
+![Docker](https://img.shields.io/badge/docker-ready-blue)
+![GitHub Actions](https://img.shields.io/badge/CI-GitHub_Actions-green)
+![License](https://img.shields.io/badge/license-MIT-lightgrey)
+
 # GPSDataProcessing
 
-A fully automated R workflow for processing livestock GPS data with GitHub Actions CI/CD. Clean, analyse, and visualize GPS tracking data with zero manual interventions.
+A fully automated **R-based pipeline for processing livestock GPS data**, built with **Docker**, **Google Cloud Storage**, and **GitHub Actions CI/CD**.  
+The workflow cleans, analyzes, and visualizes GPS tracking data **without any manual intervention**.
+
+This project is intended for researchers, data scientists, and analysts working with large-scale GPS or spatial tracking data.
+
+---
 
 ## Overview
 
-This repository contains sanitized R scripts designed to demonstrate a complete workflow for working with GPS data. The scripts cover:
-- **Data Cleaning**: Preprocessing and structuring GPS datasets.
-- **Spatial Analysis**: Integrating and analyzing spatial attributes (e.g., altitude, slope, land cover).
-- **Exploratory Data Analysis (EDA)**: Generating visualizations to explore patterns and trends.
+This repository demonstrates a real-world, production-style data processing workflow for livestock GPS data.
+
+Key features:
+
+- 📦 **Raw data stored in Google Cloud Storage (GCS)**
+- 🐳 **Reproducible Docker environment**
+- ⚙️ **Fully automated GitHub Actions pipeline**
+- 📊 **Spatial analysis and exploratory data analysis (EDA)**
+- 🚫 **No raw data committed to GitHub**
+
+All processing runs inside a Docker container, ensuring **fully reproducible results** across machines and environments.
+
+Google Cloud Storage is used to decouple large spatial datasets from code, keeping the repository lightweight and secure.
+
+---
+
+## What This Pipeline Does
+
+1. Downloads raw GPS and spatial data from Google Cloud Storage  
+2. Cleans and filters GPS observations  
+3. Computes grazing seasons and pasture use  
+4. Integrates landscape variables (altitude, slope, habitat, etc.)  
+5. Generates summary tables and visualizations  
+6. Uploads outputs as GitHub Actions artifacts  
+
+---
 
 ## Scripts
 
-- `clean_I.R`: Initial data cleaning and filtering of GPS observations.
-- `clean_II.R`: Calculation of grazing seasons and pasture days with spatial integration.
-- `clean_III.R`: Incorporation of landscape variables (e.g., altitude, slope) into GPS data.
-- `eda.R`: Exploratory data analysis with visualizations (e.g., bar plots, boxplots, heatmaps).
+| **Script** | **Purpose** |
+|------|--------|
+| `clean_I.R` | Initial GPS data cleaning and spatial filtering |
+| `clean_II.R` | Grazing season and pasture day calculations |
+| `clean_III.R` | Integration of landscape variables |
+| `eda.R` | Exploratory data analysis and visualization |
 
-**GitHub Actions handles everything automatically:**
-- ✅ R 4.3.0 + 50+ packages (`sf`, `terra`, `tidyverse`, `ggplot2`, etc.)
-- ✅ GDAL/GEOS/PROJ spatial libraries
-- ✅ Directory creation
-- ✅Triggered by git push data/* (Auto-run pipeline) or manually GitHub → Actions → "Run workflow"
+---
 
-**Pipeline Flow:**
+## Automated Workflow
+
+The entire pipeline is executed by **GitHub Actions**.
+
+### Execution Environment
+
+- Docker image:
+````bash
+ghcr.io/asalonio/gps-processing:1.0
+````
+
+- Includes:
+ - R 4.4.3
+ - sf, terra, tidyverse, and related packages
+ - GDAL/PROJ/GEOS system libraries
+
+### Triggers
+
+- Automatically on push to main
+- Manually via **GitHub → Actions → Run workflow**
+
+---
+
+## Pipeline Flow:
+
 ````mermaid
 graph LR
-    A[Push data/] --> B[clean_I.R<br/>ZEC filtering]
+    A[Google Cloud Storage<br/>Raw Data ZIP] --> B[clean_I.R<br/>Data cleaning]
     B --> C[clean_II.R<br/>Grazing seasons]
-    C --> D[clean_III.R<br/>Landscape vars]
+    C --> D[clean_III.R<br/>Landscape variables]
     D --> E[eda.R<br/>Visualizations]
-    E --> F[output/*.png<br/>output/*.xlsx]
+    E --> F[Artifacts<br/>CSV · XLSX · PNG]
 ````
-## Requirements
 
-- R environment (version 4.0 or higher recommended).
-- Required R packages (install via `install.packages()`):
-  - `sf`
-  - `terra`
-  - `tidyr`
-  - `dplyr`
-  - `tidyterra`
-  - `stringr`
-  - `tibble`
-  - `openxlsx`
-  - `lubridate`
-  - `scales`
-  - `ggplot2`
-  - `tidyverse`
+---
 
-## Usage
+## Data Management (Google Cloud Storage)
 
-1. Clone the repo:
-   ```bash
-   git clone <https://github.com/ASalonio>
-   cd GPSDataProcessing
+### Where the data lives
 
-2. Add your GPS CSV files to data/
-   ```bash
-   git add data/*
-   git commit -m "Add GPS data"
-   git push
+Raw GPS and spatial data are stored as a ZIP archive in **Google Cloud Storage (GCS)**.
 
-3. Watch it Run
-  - GitHub → Actions tab → See live progress
-  - ~10-15 minutes → Complete pipeline
-  - Results auto-committed to output/ & data/output/
+**Current dataset:**
 
-4. Download Results
-  - Artifacts available for 30 days
-  - Or directly from repo: output/*.png, output/*.xlsx
+gps_data_processing/data-v1.zip
 
-## Directory Structure
+You can view and download the current input data here:
+https://console.cloud.google.com/storage/browser/_details/gps_data_processing/data-v1.zip;tab=live_object?project=even-trainer-481417-i1
 
-GPSDataProcessing/
-├── data/                    # ← ADD YOUR RAW DATA HERE
-│   ├── zone1_data.csv
-│   ├── zone2_data.csv
-│   ├── traceability_data.csv
-│   ├── country_boundaries.shp
-│   ├── zec_boundaries.shp
-│   ├── management_units.shp
-│   ├── slope_data.shp
-│   ├── orientation_data.shp
-│   ├── habitat_data.shp
-│   ├── forest_inventory.shp
-│   ├── water_points.shp
-│   ├── path_data.shp
-│   ├── clearance_data.shp
-│   └── dem_data.tif                
-├── data/output/            # ← AUTO-GENERATED
-│   └── processed_data.csv
-├── output/                 # ← AUTO-GENERATED FINAL RESULTS
-│   ├── demand_producer.xlsx
-│   ├── season_unit.csv
-│   ├── landscape_data.csv
-│   └── gps_obs_*.png
-├── clean_I.R, clean_II.R... # ← AUTOMATED SCRIPTS
-└── process.yml             # ← GITHUB ACTIONS WORKFLOW
+> The repository itself does **not** contain raw data.
 
-## Example Outputs
+---
 
-## Example Outputs
+### Updating the input data
 
-| **Type** | **File** | **Content** |
-|----------|----------|-------------|
-| **Excel** | `demand_producer.xlsx` | Producer demand summaries |
-| **CSV** | `season_unit.csv` | Management unit grazing seasons |
-| **PNG** | `gps_obs_by_livestock_type.png` | Observations by livestock type |
-| **PNG** | `total_grazing_days_by_ug.png` | Grazing days by management unit |
+To provide new data to the pipeline:
+
+1. Prepare a ZIP file with the expected internal structure:
+
+````kotlin
+data/
+├── zone1_data.csv
+├── zone2_data.csv
+├── traceability_data.csv
+├── *.shp
+├── *.tif
+````
+
+2. Upload the ZIP file to the GCS bucket:
+
+    - Replace data-v1.zip, **or**
+    - Upload a new version (e.g. data-v2.zip) and update the workflow download URL
+
+Once uploaded, the next workflow run will automatically use the new data.
+
+---
+
+### What happens during a run 
+
+On each GitHub Actions execution:
+
+1. The ZIP file is downloaded from GCS
+
+2. Data are extracted into the data/ directory
+
+3. All R scripts run sequentially inside Docker
+
+4. Results are saved and uploaded as artifacts
+
+---
+
+## Outputs
+
+Results are generated automatically and uploaded as **GitHub Actions artifacts**, available for **30 days**.
+
+### Example outputs
+
+| **Type** | **File** | **Description** |
+|----|----|----|
+| Excel | `demand_producer.xlsx` | Producer demand summaries |
+| CSV | `season_unit.csv` | Grazing seasons by management unit |
+| CSV | `landscape_data.csv` | GPS points with landscape attributes |
+| PNG | `gps_obs_by_livestock_type.png` | Observations by livestock type |
+| PNG | `total_grazing_days_by_ug.png` | Grazing days by unit |
+
+---
+
+## Repository Structure
+
+```text
+GPSDataProcessing
+├── .github/
+│   └── workflows/process.yml
+├── .gitignore
+├── clean_I.R
+├── clean_II.R
+├── clean_III.R
+├── Dockerfile
+├── eda.R
+├── LICENSE
+└── README.md
+```
+
+---
+
+
+## Running Locally (Optional)
+
+Advanced users can run the pipeline locally using Docker:
+
+```bash
+docker run --rm \
+  -v $(pwd):/workspace \
+  ghcr.io/asalonio/gps-processing:1.0 \
+  Rscript clean_I.R
+```
+
+---
+
+## Why this Architecture?
+
+- 🐳 Reproducible environment
+- ☁️ Scalable cloud storage
+- 🔐 Secure data handling
+- 🚀 Zero-touch automation
+- 📉 No large files in GitHub
+
+---
 
 ## License
 
