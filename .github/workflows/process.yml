@@ -33,9 +33,9 @@ jobs:
     - name: Run clean_I - Spatial Data Cleaning
       run: Rscript clean_I.R
       env:
-        RAW_DATA_PATH: ${{ github.workspace }}/${{ github.workspace }}/data
-        PROCESSED_DATA_PATH: ${{ github.workspace }}/${{ github.workspace }}/data/processed
-        OUTPUT_PATH: ${{ github.workspace }}/${{ github.workspace }}/output
+        RAW_DATA_PATH: ${{ github.workspace }}/data
+        PROCESSED_DATA_PATH: ${{ github.workspace }}/data/processed
+        OUTPUT_PATH: ${{ github.workspace }}/output
 
     - name: Run clean_II - Grazing Demand Analysis
       run: Rscript clean_II.R
