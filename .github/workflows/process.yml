@@ -11,93 +11,52 @@ jobs:
   process-data:
     runs-on: ubuntu-latest
 
+    container:
+      image: ghcr.io/asalonio/gps-processing:1.0
+
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
-      with: 
+      uses: actions/checkout@v3
+      with:
         fetch-depth: 0
 
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          libgdal-dev \
-          libproj-dev \
-          libudunits2-dev \
-          libssl-dev \
-          libcurl4-openssl-dev \
-          libxml2-dev \
-          libfontconfig1-dev \
-          libharfbuzz-dev \
-          libfribidi-dev \
-          libfreetype6-dev \
-          libpng-dev \
-          libtiff5-dev \
-          libjpeg-dev \
-          libgeos-dev
-          
-    - name: Set up R
-      uses: r-lib/actions/setup-r@v2
-      with:
-        r-version: "4.4.3"
-        use-public-rspm: true
-
-    - name: Install R packages
-      uses: r-lib/actions/setup-r-dependencies@v2
-      with:
-        packages: |
-          sp
-          terra
-          sf
-          tidyterra
-          tidyverse
-          lubridate
-        cache: true
-    
     - name: Download data
       run: |
-        curl  -L https://storage.googleapis.com/gps_data_processing/data-v1.zip \
-          -o data.zip
+        curl -L https://storage.googleapis.com/gps_data_processing/data-v1.zip -o data.zip
         unzip data.zip
-      
+
     - name: Debug data structure
       run: |
-        echo "PWD:"
         pwd
-        echo "Tree:"
         find data -maxdepth 3 -type f | head -50
-
-    - name: Inspect data directory
-      run: |
-        ls -R data | head -50
 
     - name: Run clean_I - Spatial Data Cleaning
       run: Rscript clean_I.R
       env:
-        RAW_DATA_PATH: ${{ github.workspace }}/data
-        PROCESSED_DATA_PATH: ${{ github.workspace }}/data/processed
-        OUTPUT_PATH: ${{ github.workspace }}/output
+        RAW_DATA_PATH: /__w/${{ github.repository }}/${{ github.repository }}/data
+        PROCESSED_DATA_PATH: /__w/${{ github.repository }}/${{ github.repository }}/data/processed
+        OUTPUT_PATH: /__w/${{ github.repository }}/${{ github.repository }}/output
 
     - name: Run clean_II - Grazing Demand Analysis
       run: Rscript clean_II.R
       env:
-        PROCESSED_DATA_PATH: ${{ github.workspace }}/data/processed
-        OUTPUT_PATH: ${{ github.workspace }}/output
+        PROCESSED_DATA_PATH: /__w/${{ github.repository }}/${{ github.repository }}/data/processed
+        OUTPUT_PATH: /__w/${{ github.repository }}/${{ github.repository }}/output
 
     - name: Run clean_III - Landscape Analysis
       run: Rscript clean_III.R
       env:
-        RAW_DATA_PATH: ${{ github.workspace }}/data
-        PROCESSED_DATA_PATH: ${{ github.workspace }}/data/processed
-        OUTPUT_PATH: ${{ github.workspace }}/output
+        RAW_DATA_PATH: /__w/${{ github.repository }}/${{ github.repository }}/data
+        PROCESSED_DATA_PATH: /__w/${{ github.repository }}/${{ github.repository }}/data/processed
+        OUTPUT_PATH: /__w/${{ github.repository }}/${{ github.repository }}/output
 
-    - name: Run EDA - Exploratory Data Analysis
+    - name: Run EDA
       run: Rscript eda.R
       env:
-        PROCESSED_DATA_PATH: ${{ github.workspace }}/data/processed
-        OUTPUT_PATH: ${{ github.workspace }}/output
+        PROCESSED_DATA_PATH: /__w/${{ github.repository }}/${{ github.repository }}/data/processed
+        OUTPUT_PATH: /__w/${{ github.repository }}/${{ github.repository }}/output
 
-    - name: Upload outputs as artifacts
+    - name: Upload outputs
       uses: actions/upload-artifact@v4
       with:
         name: results
@@ -105,4 +64,3 @@ jobs:
           output/*.csv
           output/*.png
           data/processed/*.csv
-        retention-days: 30
